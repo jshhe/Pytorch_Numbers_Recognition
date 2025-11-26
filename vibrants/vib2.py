@@ -47,14 +47,11 @@ def evaluate(test_data, net, device):
 
 
 def visualize_random_predictions(net, test_dataset, device, epoch, num_samples=10):
-    """每次随机选择不同的测试样本进行可视化"""
     net.eval()
     with torch.no_grad():
-        # 随机选择num_samples个不同的索引
         all_indices = list(range(len(test_dataset)))
         random_indices = random.sample(all_indices, num_samples)
 
-        # 获取随机样本
         images = []
         true_labels = []
         for idx in random_indices:
@@ -62,25 +59,20 @@ def visualize_random_predictions(net, test_dataset, device, epoch, num_samples=1
             images.append(img)
             true_labels.append(label)
 
-        # 转换为张量并移到设备
         images = torch.stack(images).to(device)
         true_labels = torch.tensor(true_labels).to(device)
 
-        # 获取预测结果
         outputs = net(images.view(-1, 28 * 28))
         _, predicted = torch.max(outputs, 1)
 
-        # 创建可视化图形
         fig, axes = plt.subplots(2, 5, figsize=(15, 6))
         axes = axes.flatten()
 
         for i in range(num_samples):
             ax = axes[i]
-            # 将图像转换为numpy格式并移除通道维度
             img = images[i].cpu().numpy().squeeze()
             # 显示图像
             ax.imshow(img, cmap='gray')
-            # 设置标题（真实标签和预测标签）
             color = 'green' if predicted[i] == true_labels[i] else 'red'
             ax.set_title(f"True: {true_labels[i].item()}\nPred: {predicted[i].item()}",
                          color=color, fontsize=12)
@@ -102,7 +94,6 @@ def main():
     train_data = get_data_loader(is_train=True)
     test_data = get_data_loader(is_train=False)
 
-    # 重要：获取完整的测试数据集对象（用于随机采样）
     to_tensor = transforms.Compose([transforms.ToTensor()])
     test_dataset = MNIST("", train=False, transform=to_tensor, download=True)
 
@@ -115,7 +106,6 @@ def main():
     epochs.append(-1)
     accuracies.append(initial_acc)
 
-    # 保存初始状态的随机预测结果
     visualize_random_predictions(net, test_dataset, device, -1)
 
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
@@ -136,7 +126,6 @@ def main():
         epochs.append(epoch)
         accuracies.append(acc)
 
-        # 保存当前epoch的随机预测可视化
         visualize_random_predictions(net, test_dataset, device, epoch)
 
     plt.figure(figsize=(8, 5))

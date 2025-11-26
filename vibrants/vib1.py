@@ -44,32 +44,23 @@ def evaluate(test_data, net, device):
 
 
 def visualize_predictions(net, test_loader, device, epoch, num_samples=10):
-    """可视化模型预测结果并保存为图片"""
     net.eval()
     with torch.no_grad():
-        # 获取一个批次的测试数据
         dataiter = iter(test_loader)
         images, labels = next(dataiter)
-
-        # 选择前num_samples个样本
         images = images[:num_samples].to(device)
         labels = labels[:num_samples].to(device)
 
-        # 获取预测结果
         outputs = net(images.view(-1, 28 * 28))
         _, predicted = torch.max(outputs, 1)
 
-        # 创建可视化图形
         fig, axes = plt.subplots(2, 5, figsize=(15, 6))
         axes = axes.flatten()
 
         for i in range(num_samples):
             ax = axes[i]
-            # 将图像转换为numpy格式并移除通道维度
             img = images[i].cpu().numpy().squeeze()
-            # 显示图像
             ax.imshow(img, cmap='gray')
-            # 设置标题（真实标签和预测标签）
             color = 'green' if predicted[i] == labels[i] else 'red'
             ax.set_title(f"True: {labels[i].item()}\nPred: {predicted[i].item()}",
                          color=color, fontsize=12)
@@ -90,7 +81,6 @@ def main():
     train_data = get_data_loader(is_train=True)
     test_data = get_data_loader(is_train=False)
 
-    # 创建一个专门用于可视化的测试数据加载器（不打乱顺序）
     to_tensor = transforms.Compose([transforms.ToTensor()])
     visual_set = MNIST("", train=False, transform=to_tensor, download=True)
     visual_loader = DataLoader(visual_set, batch_size=512, shuffle=False)
@@ -104,7 +94,6 @@ def main():
     epochs.append(-1)
     accuracies.append(initial_acc)
 
-    # 保存初始状态的预测结果
     visualize_predictions(net, visual_loader, device, -1)
 
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
@@ -125,7 +114,6 @@ def main():
         epochs.append(epoch)
         accuracies.append(acc)
 
-        # 保存当前epoch的预测可视化
         visualize_predictions(net, visual_loader, device, epoch)
 
     plt.figure(figsize=(8, 5))

@@ -62,7 +62,7 @@ def main():
     accuracies.append(initial_acc)
 
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
-    num_epochs = 8
+    num_epochs = 3
     for epoch in range(num_epochs):
         for (x, y) in train_data:
             x = x.to(device)

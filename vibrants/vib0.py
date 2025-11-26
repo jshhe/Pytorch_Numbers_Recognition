@@ -3,8 +3,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import MNIST
 import matplotlib.pyplot as plt
-import random  # 新增：用于随机选择样本
-#import numpy as np  # 新增：用于数组操作
+import random
 
 
 class Net(torch.nn.Module):
@@ -48,49 +47,35 @@ def evaluate(test_data, net, device):
 
 
 def visualize_random_samples(net, device, num_samples=3):
-    """
-    从训练集中随机选择样本，展示原图和预测结果
-    """
-    # 重新加载训练数据集（不使用DataLoader，直接访问Dataset）
+
     transform = transforms.Compose([transforms.ToTensor()])
     train_dataset = MNIST("", train=True, transform=transform, download=True)
 
-    # 随机选择样本索引
     random_indices = random.sample(range(len(train_dataset)), num_samples)
 
-    # 创建图形
     plt.figure(figsize=(12, 4))
 
     for i, idx in enumerate(random_indices):
-        # 获取单个样本
         image, true_label = train_dataset[idx]
 
-        # 准备输入数据
         image_tensor = image.to(device)
-        # 展平图像并添加batch维度
         input_tensor = image_tensor.view(1, -1)
 
-        # 模型预测
         net.eval()
         with torch.no_grad():
             output = net(input_tensor)
             predicted_label = torch.argmax(output, dim=1).item()
 
-        # 将图像转换为numpy数组用于显示（移除通道维度）
         image_np = image_tensor.cpu().numpy().squeeze()
 
-        # 创建子图
         ax = plt.subplot(1, num_samples, i + 1)
 
-        # 显示图像
         ax.imshow(image_np, cmap='gray')
 
-        # 设置标题：预测结果和真实标签
         title = f'Predicted: {predicted_label}\nTrue: {true_label}'
         color = 'green' if predicted_label == true_label else 'red'
         ax.set_title(title, color=color, fontsize=12)
 
-        # 移除坐标轴
         ax.axis('off')
 
     plt.tight_layout()
@@ -115,7 +100,7 @@ def main():
     accuracies.append(initial_acc)
 
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
-    num_epochs = 10
+    num_epochs = 3
     for epoch in range(num_epochs):
         for (x, y) in train_data:
             x = x.to(device)
@@ -132,23 +117,6 @@ def main():
         epochs.append(epoch)
         accuracies.append(acc)
 
-    # 绘制训练准确率曲线
-    plt.figure(figsize=(8, 5))
-    plt.plot(epochs, accuracies, marker='o', linestyle='-', color='b')
-    plt.title('Accuracy')
-    plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
-    plt.grid(True)
-    plt.ylim(0, 1)
-    plt.xticks(epochs)
-    plt.savefig("accuracy_curve.png", dpi=150, bbox_inches='tight')
-    print("The accuracy function is saved at ~/accuracy_curve.png")
-    plt.close()  # 关闭图形，避免与后面的图形冲突
-
-    # === 新增功能：随机选择三张训练集图片进行预测和可视化 ===
-    print("\n" + "=" * 50)
-    print("Visualizing random samples from training set...")
-    print("=" * 50)
     visualize_random_samples(net, device, num_samples=3)
 
 
