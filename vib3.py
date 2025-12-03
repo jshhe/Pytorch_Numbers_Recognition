@@ -32,7 +32,7 @@ def main():
     train_data = get_data_loader(is_train=True)
     net = Net().to(device)
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
-    num_epochs = 8
+    num_epochs = 4
 
     net.train()
     for epoch in range(num_epochs):
