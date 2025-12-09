@@ -10,9 +10,9 @@ class Net(torch.nn.Module):
         super().__init__()
         self.model = torch.nn.Sequential(
             torch.nn.Flatten(),
-            torch.nn.Linear(28 * 28, 256),
+            torch.nn.Linear(28 * 28, 512),
             torch.nn.ReLU(),
-            torch.nn.Linear(256, 256),
+            torch.nn.Linear(512, 256),
             torch.nn.ReLU(),
             torch.nn.Linear(256, 128),
             torch.nn.ReLU(),
@@ -62,7 +62,7 @@ def main():
     accuracies.append(initial_acc)
 
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
-    num_epochs = 3
+    num_epochs =5
     for epoch in range(num_epochs):
         for (x, y) in train_data:
             x = x.to(device)
